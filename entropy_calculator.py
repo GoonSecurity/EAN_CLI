@@ -1,5 +1,6 @@
 import math, string, sys, fileinput
 
+#credits: http://pythonfiddle.com/shannon-entropy-calculation/
 def range_bytes (): 
 	return range(256)
 
