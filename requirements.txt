@@ -1,0 +1,4 @@
+imgkit
+requests
+termcolor
+beautifulsoup4
