@@ -60,7 +60,10 @@ def get_all_scripts(url, cookie):
 	for script_link in initial_script_links:
 
 		try:
-			content = requests.get(script_link, timeout=3).text
+			if(cookie == None ):
+				content = requests.get(script_link, timeout=3).text
+			else:
+				content = requests.get(script_link, timeout=3, cookies=cookie).text
 		except:
 			continue
 
@@ -97,8 +100,11 @@ def get_all_tokens(url,cookie):
 		#get all script data
 		script_data = script_links[script_link]
 		if script_data['requested'] == False:
-			content = requests.get(script_link, timeout=3).text
 
+			if(cookie == None ):
+				content = requests.get(script_link, timeout=3).text
+			else:
+				content = requests.get(script_link, timeout=3, cookies=cookie).text
 			script_data['requested'] == True
 			script_data['content'] == content
 
