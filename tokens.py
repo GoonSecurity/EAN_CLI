@@ -4,6 +4,7 @@ import argparse
 from bs4 import BeautifulSoup
 from termcolor import colored
 from urllib.parse import urljoin
+from http.cookies import SimpleCookie
 
 import analysis
 
@@ -13,16 +14,28 @@ import analysis
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--url')
 parser.add_argument('-m', '--max', default=False)
+parser.add_argument('-c', '--cookie',default=None)
 args, domains = parser.parse_known_args()
 
 
 url = args.url
 maximum_tokens = args.max
 
+cookieConverter = SimpleCookie()
+rawCookie=args.cookie
+cookieConverter.load(rawCookie)
 
-def get_all_scripts(url):
+cookie = {}
+for key, morsel in cookieConverter.items():
+    cookie[key] = morsel.value
+
+
+def get_all_scripts(url, cookie):
 	try:
-		source = requests.get(url, allow_redirects=True, timeout=3).text
+		if(cookie == None ):
+			source = requests.get(url, allow_redirects=True, timeout=3).text
+		else:
+			source = requests.get(url, allow_redirects=True, timeout=3,cookies=cookie ).text
 	except:
 		return []
 
@@ -72,12 +85,12 @@ def get_all_scripts(url):
 
 
 
-def get_all_tokens(url):
+def get_all_tokens(url,cookie):
 	all_tokens = []
 	token_data = []
 
 	#parse script files for tokens
-	script_links = get_all_scripts(url)
+	script_links = get_all_scripts(url,cookie)
 
 	for script_link in script_links:
 
@@ -102,7 +115,7 @@ def get_all_tokens(url):
 
 
 
-token_data = get_all_tokens(url)
+token_data = get_all_tokens(url,cookie)
 
 loop = 0
 for data in token_data:
