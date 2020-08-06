@@ -20,15 +20,17 @@ args, domains = parser.parse_known_args()
 
 url = args.url
 maximum_tokens = args.max
-
-cookieConverter = SimpleCookie()
 rawCookie=args.cookie
-cookieConverter.load(rawCookie)
 
-cookie = {}
-for key, morsel in cookieConverter.items():
-    cookie[key] = morsel.value
+if(rawCookie != None):
+	cookieConverter = SimpleCookie()
+	cookieConverter.load(rawCookie)
 
+	cookie = {}
+	for key, morsel in cookieConverter.items():
+		cookie[key] = morsel.value
+else:
+	cookie=None
 
 def get_all_scripts(url, cookie):
 	try:
