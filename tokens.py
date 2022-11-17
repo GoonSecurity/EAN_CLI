@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import re
 import requests
 import argparse
@@ -11,24 +12,27 @@ import analysis
 
 #parse command line arguments
 parser = argparse.ArgumentParser()
+parser.add_argument('-t', '--tld')
 parser.add_argument('-u', '--url')
 parser.add_argument('-m', '--max', default=False)
 args, domains = parser.parse_known_args()
 
 
 url = args.url
+tld = args.tld
 maximum_tokens = args.max
 
 
 def get_all_scripts(url):
 	try:
-		source = requests.get(url, allow_redirects=True, timeout=3).text
+		source = requests.get(url, allow_redirects=True, timeout=5).text
+		#print(source)
 	except:
 		return []
 
 
 	soup = BeautifulSoup(source, "html.parser")
-
+	#print(soup)
 
 	all_script_links = {}
 	initial_script_links = []
@@ -36,6 +40,7 @@ def get_all_scripts(url):
 	#get script links in homepage
 	for script in soup.find_all("script"):
 	    if script.attrs.get("src"):
+	        #print(script.attrs.get("src"))
 
 	        #if the tag has the attribute 'src'
 	        script_url = urljoin(url, script.attrs.get("src"))
@@ -45,9 +50,10 @@ def get_all_scripts(url):
 
 	#search found scripts for more javascript files
 	for script_link in initial_script_links:
+		#print(script_link)
 
 		try:
-			content = requests.get(script_link, timeout=3).text
+			content = requests.get(script_link, timeout=5).text
 		except:
 			continue
 
@@ -75,11 +81,13 @@ def get_all_scripts(url):
 def get_all_tokens(url):
 	all_tokens = []
 	token_data = []
-
+	print("Starting... {}".format(url))
 	#parse script files for tokens
 	script_links = get_all_scripts(url)
 
 	for script_link in script_links:
+		if not tld in script_link: continue
+		print(script_link)
 
 		#get all script data
 		script_data = script_links[script_link]
@@ -104,11 +112,7 @@ def get_all_tokens(url):
 
 token_data = get_all_tokens(url)
 
-loop = 0
-for data in token_data:
-	loop += 1
-	if loop == 1: continue
-	
+for data in token_data:	
 
 	token = data['token']
 	url   = data['url']
