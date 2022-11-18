@@ -86,7 +86,7 @@ def get_all_tokens(url):
 	script_links = get_all_scripts(url)
 
 	for script_link in script_links:
-		if not tld in url: continue
+		if not tld in script_link: continue
 		print(script_link)
 
 		#get all script data
