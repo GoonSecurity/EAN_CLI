@@ -145,7 +145,7 @@ def crawl(urllocal, depth=1):
  global urls_crawled
  try:
   if debug_mode == 1: print("Crawling: {}".format(urllocal))
-  if depth >= 3: return
+  if depth >= 2: return
   urllist = []
   get_tokens_local(urllocal)
   s = requests.Session()
