@@ -24,8 +24,9 @@ maximum_tokens = args.max
 
 
 def get_all_scripts(url):
+	sess = requests.Session()
 	try:
-		source = requests.get(url, allow_redirects=True, timeout=5).text
+		source = sess.get(url, allow_redirects=True, timeout=5).text
 		#print(source)
 	except:
 		return []
@@ -53,7 +54,7 @@ def get_all_scripts(url):
 		#print(script_link)
 
 		try:
-			content = requests.get(script_link, timeout=5).text
+			content = sess.get(script_link, timeout=5).text
 		except:
 			continue
 
