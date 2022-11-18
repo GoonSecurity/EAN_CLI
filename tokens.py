@@ -15,12 +15,16 @@ import warnings
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--tld')
 parser.add_argument('-u', '--url')
+parser.add_argument('-l', '--threads')
 parser.add_argument('-m', '--max', default=False)
 args, domains = parser.parse_known_args()
 
 if not args.url or not args.tld:
  print("URL (-u) and domain (-t) are required!")
  sys.exit(0)
+threadnum = 5
+if args.threads:
+ threadnum = int(args.threads)
 url = args.url
 tld = args.tld
 maximum_tokens = args.max
@@ -158,7 +162,7 @@ def crawl(urllocal, depth=1):
    if debug_mode == 1: print(url_list_piece)
    if not url_list_piece in urls_crawled and tld in url_list_piece:
     with threading.Lock(): urls_crawled.append(url_list_piece)
-    while threading.active_count() > 10: time.sleep(1)
+    while threading.active_count() > threadnum: time.sleep(1)
     t=threading.Thread(target=crawl, args=(urllocal, depth+1))
     t.start()
   except Exception as error:
