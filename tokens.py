@@ -17,6 +17,7 @@ parser.add_argument('-t', '--tld')
 parser.add_argument('-u', '--url')
 parser.add_argument('-l', '--threads')
 parser.add_argument('-n', '--maxcrawl')
+parser.add_argument('-x', '--depth')
 parser.add_argument('-m', '--max', default=False)
 args, domains = parser.parse_known_args()
 
@@ -32,6 +33,9 @@ maximum_tokens = args.max
 max_url_crawl_count = 25
 if args.maxcrawl:
  max_url_crawl_count = int(args.maxcrawl)
+crawl_depth = 0
+if args.depth:
+ crawl_depth = int(args.depth)
 debug_mode = 0
 
 if debug_mode == 0:
@@ -145,7 +149,7 @@ def crawl(urllocal, depth=1):
  global urls_crawled
  try:
   if debug_mode == 1: print("Crawling: {}".format(urllocal))
-  if depth >= 2: return
+  if depth >= crawl_depth: return
   urllist = []
   get_tokens_local(urllocal)
   s = requests.Session()
