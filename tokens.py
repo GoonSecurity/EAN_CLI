@@ -19,8 +19,10 @@ parser.add_argument('-l', '--threads')
 parser.add_argument('-n', '--maxcrawl')
 parser.add_argument('-x', '--depth')
 parser.add_argument('-m', '--max', default=False)
+parser.add_argument('-v', '--debug', action="store_true")
 args, domains = parser.parse_known_args()
 
+tlock = threading.Lock()
 if not args.url or not args.tld:
  print("URL (-u) and domain (-t) are required!")
  sys.exit(0)
@@ -37,6 +39,8 @@ crawl_depth = 0
 if args.depth:
  crawl_depth = int(args.depth)
 debug_mode = 0
+if args.debug:
+ debug_mode = 1
 
 if debug_mode == 0:
  warnings.filterwarnings("ignore")
@@ -68,7 +72,7 @@ def get_all_scripts(url):
    script_url = urljoin(url, script.attrs.get("src"))
    if not script_url in all_scripts_url_found:
     initial_script_links.append(script_url)
-    with threading.Lock(): all_scripts_url_found.append(script_url)
+    with tlock: all_scripts_url_found.append(script_url)
 
 
  #search found scripts for more javascript files
@@ -89,7 +93,7 @@ def get_all_scripts(url):
     url = urljoin(base_path, match) + ".js"
     if url not in all_script_links and url not in all_scripts_url_found:
      all_script_links[url] = {'requested': False, 'content': content}
-     with threading.Lock(): all_scripts_url_found.append(url)
+     with tlock: all_scripts_url_found.append(url)
 
  return all_script_links
 
@@ -121,7 +125,7 @@ def get_all_tokens(url):
   for token in tokens:
    if token not in all_tokens and token not in all_global_tokens: 
     all_tokens.append(token)
-    with threading.Lock(): all_global_tokens.append(token)
+    with tlock: all_global_tokens.append(token)
     token_data.append({'url': script_link, 'token': token, 'source': script_data['content']})
 
  return token_data
@@ -148,6 +152,11 @@ urls_crawled = []
 def crawl(urllocal, depth=1):
  global urls_crawled
  try:
+  with tlock:
+   if urllocal in urls_crawled:
+    return
+   else:
+    urls_crawled.append(urllocal)
   if debug_mode == 1: print("Crawling: {}".format(urllocal))
   if depth >= crawl_depth: return
   urllist = []
@@ -166,11 +175,14 @@ def crawl(urllocal, depth=1):
    if urlcountfound >= max_url_crawl_count: break
    url_list_piece = url_list_piece.attrs.get("href")
    url_list_piece = urljoin(urllocal, url_list_piece)
-   if debug_mode == 1: print(url_list_piece)
-   if not url_list_piece in urls_crawled and tld in url_list_piece:
-    with threading.Lock(): urls_crawled.append(url_list_piece)
-    while threading.active_count() > threadnum: time.sleep(1)
-    t=threading.Thread(target=crawl, args=(urllocal, depth+1))
+   if tld in url_list_piece:
+    with tlock:
+     start_t = 0
+     if not url_list_piece in urls_crawled:
+      if debug_mode == 1: print("Found URL: "+url_list_piece)
+      start_t = 1
+    while threading.active_count() > threadnum: time.sleep(0.1)
+    t=threading.Thread(target=crawl, args=(url_list_piece, depth+1))
     t.start()
   except Exception as error:
    if debug_mode == 1: print(error)
