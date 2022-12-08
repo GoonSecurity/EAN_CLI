@@ -42,8 +42,7 @@ debug_mode = 0
 if args.debug:
  debug_mode = 1
 
-if debug_mode == 0:
- warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore")
 
 all_scripts_url_found = []
 all_global_tokens = []
@@ -53,7 +52,7 @@ def get_all_scripts(url):
 
  sess = requests.Session()
  try:
-  source = sess.get(url, allow_redirects=True, timeout=5).text
+  source = sess.get(url, allow_redirects=True, timeout=5, verify=False).text
   #print(source)
  except:
   return []
@@ -113,7 +112,7 @@ def get_all_tokens(url):
   #get all script data
   script_data = script_links[script_link]
   if script_data['requested'] == False:
-   content = requests.get(script_link, timeout=3).text
+   content = requests.get(script_link, timeout=5, verify=False).text
 
    script_data['requested'] == True
    script_data['content'] == content
@@ -162,7 +161,7 @@ def crawl(urllocal, depth=1):
   urllist = []
   get_tokens_local(urllocal)
   s = requests.Session()
-  r = s.get(url=urllocal, allow_redirects=True, timeout=5)
+  r = s.get(url=urllocal, allow_redirects=True, timeout=5, verify=False)
   soup = BeautifulSoup(r.text, "html.parser")
   urllist = soup.find_all("a")
  except Exception as error:
@@ -188,3 +187,4 @@ def crawl(urllocal, depth=1):
    if debug_mode == 1: print(error)
 
 crawl(url)
+            
