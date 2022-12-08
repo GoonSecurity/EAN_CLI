@@ -26,7 +26,7 @@ tlock = threading.Lock()
 if not args.url or not args.tld:
  print("URL (-u) and domain (-t) are required!")
  sys.exit(0)
-threadnum = 5
+threadnum = 25
 if args.threads:
  threadnum = int(args.threads)
 url = args.url
