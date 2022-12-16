@@ -2,7 +2,7 @@ import re
 import entropy_calculator
 
 
-PERCENT_THRESHOLD = 25
+PERCENT_THRESHOLD = 10
 MAX_THRESHOLD     = 70
 
 LOWERCASE_LETTERS     = "abcdefghijklmnopqrstuvwxyz"
